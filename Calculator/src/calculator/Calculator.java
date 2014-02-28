@@ -1,13 +1,13 @@
-// The "Calculator2" class.
+// The "Calculator3" class.
 import hsa.*;
 import java.util.*;
-public class Calculator2
+public class Calculator3
 {
     private static StringBuffer doOps (StringBuffer equation)
     {
 	String number1, number2;
 	double num1, num2;
-	char operation;  
+	char operation;
 	StringTokenizer findNums, findOps;
 	while (equation.indexOf ("^") != -1)
 	{
@@ -20,14 +20,22 @@ public class Calculator2
 		number1 = number2;
 		num1 = num2;
 		operation = findOps.nextToken ().charAt (0);
-		if (equation.indexOf ("-") == 0)
+		if (equation.indexOf ("-") == 0 && findOps.hasMoreTokens ())
 		{
 		    operation = findOps.nextToken ().charAt (0);
-		}
-		number2 = findNums.nextToken ();
-		num2 = Double.parseDouble (number2);
+		}//if
+		if (findNums.hasMoreTokens ())
+		{
+		    number2 = findNums.nextToken ();
+		    num2 = Double.parseDouble (number2);
+		}//if
 	    }
 	    while (operation != '^');
+	    if (equation.charAt (equation.indexOf ("^") + 1) == '-')
+	    {
+		num2 = -num2;
+		number2 = "-" + number2;
+	    } //if
 	    equation.replace (equation.indexOf ("^") - number1.length (),
 		    equation.indexOf ("^") + number2.length () + 1, String.valueOf (Math.pow (num1, num2)));
 	} //while
@@ -42,25 +50,39 @@ public class Calculator2
 		number1 = number2;
 		num1 = num2;
 		operation = findOps.nextToken ().charAt (0);
-		if (equation.indexOf ("-") == 0)
+		if (equation.indexOf ("-") == 0 && findOps.hasMoreTokens ())
 		{
 		    operation = findOps.nextToken ().charAt (0);
-		}
-		number2 = findNums.nextToken ();
-		num2 = Double.parseDouble (number2);
+		}//if
+		if (findNums.hasMoreTokens ())
+		{
+		    number2 = findNums.nextToken ();
+		    num2 = Double.parseDouble (number2);
+		}//if
 	    }
 	    while (operation != '*' && operation != '/');
 	    if (operation == '*')
 	    {
+		if (equation.charAt (equation.indexOf ("*") + 1) == '-')
+		{
+		    num2 = -num2;
+		    number2 = "-" + number2;
+		} //if
 		equation.replace (equation.indexOf ("*") - number1.length (),
 			equation.indexOf ("*") + number2.length () + 1, String.valueOf (num1 * num2));
-	    }
+	    }//if
 	    if (operation == '/')
 	    {
+		if (equation.charAt (equation.indexOf ("/") + 1) == '-')
+		{
+		    num2 = -num2;
+		    number2 = "-" + number2;
+		} //if
 		equation.replace (equation.indexOf ("/") - number1.length (),
 			equation.indexOf ("/") + number2.length () + 1, String.valueOf (num1 / num2));
-	    }
+	    }//if
 	} //while
+	Stdout.println(equation.toString());
 	while ((equation.indexOf ("+") != -1) || (equation.indexOf ("-", 1) != -1))
 	{
 	    findNums = new StringTokenizer (equation.toString (), "()^*/+-");
@@ -74,25 +96,43 @@ public class Calculator2
 		operation = findOps.nextToken ().charAt (0);
 		if (equation.indexOf ("-") == 0)
 		{
-		    operation = findOps.nextToken ().charAt (0);
+		    if (findOps.hasMoreTokens ())
+		    {
+			operation = findOps.nextToken ().charAt (0);
+		    }//if
 		    equation.deleteCharAt (0);
 		    num1 = -num1;
-		}
-		number2 = findNums.nextToken ();
-		num2 = Double.parseDouble (number2);
+		    number1 = "-" + number1;
+		}//if
+		if (findNums.hasMoreTokens ())
+		{
+		    number2 = findNums.nextToken ();
+		    num2 = Double.parseDouble (number2);
+		}//if
 	    }
 	    while (operation != '+' && operation != '-');
 	    if (operation == '+')
 	    {
+		if (equation.charAt (equation.indexOf ("+") + 1) == '-')
+		{
+		    num2 = -num2;
+		    number2 = "-" + number2;
+		} //if
 		equation.replace (equation.indexOf ("+") - number1.length (),
 			equation.indexOf ("+") + number2.length () + 1, String.valueOf (num1 + num2));
-	    }
+	    }//if
 	    if (operation == '-')
 	    {
+		if (equation.charAt (equation.indexOf ("-") + 1) == '-')
+		{
+		    num2 = -num2;
+		    number2 = "-" + number2;
+		} //if
 		equation.replace (equation.indexOf ("-", 1) - number1.length (),
 			equation.indexOf ("-", 1) + number2.length () + 1, String.valueOf (num1 - num2));
-	    }
+	    }//if
 	} //while
+	Stdout.println(equation.toString());
 	return equation;
     } //doOps method
 
@@ -209,7 +249,7 @@ public class Calculator2
 	    //                 parenEq.indexOf ("-", 1) + number2.length () + 1, String.valueOf (num1 - num2));
 	    //     }
 	    // } //while
-	    parenEq=doOps(parenEq);
+	    parenEq = doOps (parenEq);
 	    equation.replace (parenPos1, parenPos2 + 1, parenEq.toString ());
 	} //while
 	// while (equation.indexOf ("^") != -1)
@@ -296,7 +336,7 @@ public class Calculator2
 	//                 equation.indexOf ("-", 1) + number2.length () + 1, String.valueOf (num1 - num2));
 	//     }
 	// } //while
-	equation=doOps(equation);
+	equation = doOps (equation);
 	result = Math.round (Double.parseDouble (equation.toString ()) * 10000000000.0) / 10000000000.0;
 	if (result % 1 == 0)
 	{
@@ -307,6 +347,6 @@ public class Calculator2
 	    Stdout.println (result);
 	} //else
     } // main method
-} // Calculator2 class
+} // Calculator3 class
 
 
