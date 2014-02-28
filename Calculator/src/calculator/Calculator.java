@@ -1,7 +1,7 @@
-// The "Calculator5" class.
+// The "Calculator6" class.
 import hsa.*;
 import java.util.*;
-public class Calculator5
+public class Calculator6
 {
     private static StringBuffer doOps (StringBuffer equation)
     {
@@ -33,8 +33,8 @@ public class Calculator5
 		number2 = "-" + number2;
 		num2 = -num2;
 	    } //if
-	    equation.replace (equation.indexOf ("^") - number1.length (),
-		    equation.indexOf ("^") + number2.length () + 1, String.valueOf (Math.pow (num1, num2)));
+	    equation.replace (equation.indexOf ("^") - number1.length (), equation.indexOf ("^") + number2.length () + 1,
+		    String.valueOf (Math.pow (num1, num2)));
 	} //while
 	while ((equation.indexOf ("*") != -1) || (equation.indexOf ("/") != -1))
 	{
@@ -62,8 +62,8 @@ public class Calculator5
 		    number2 = "-" + number2;
 		    num2 = -num2;
 		} //if
-		equation.replace (equation.indexOf ("*") - number1.length (),
-			equation.indexOf ("*") + number2.length () + 1, String.valueOf (num1 * num2));
+		equation.replace (equation.indexOf ("*") - number1.length (), equation.indexOf ("*") + number2.length () + 1,
+			String.valueOf (num1 * num2));
 	    } //if
 	    if (operation == '/')
 	    {
@@ -72,8 +72,8 @@ public class Calculator5
 		    number2 = "-" + number2;
 		    num2 = -num2;
 		} //if
-		equation.replace (equation.indexOf ("/") - number1.length (),
-			equation.indexOf ("/") + number2.length () + 1, String.valueOf (num1 / num2));
+		equation.replace (equation.indexOf ("/") - number1.length (), equation.indexOf ("/") + number2.length () + 1,
+			String.valueOf (num1 / num2));
 	    } //if
 	} //while
 	while (equation.indexOf ("--") == 0)
@@ -109,8 +109,8 @@ public class Calculator5
 		    number2 = "-" + number2;
 		    num2 = -num2;
 		} //if
-		equation.replace (equation.indexOf ("+") - number1.length (),
-			equation.indexOf ("+") + number2.length () + 1, String.valueOf (num1 + num2));
+		equation.replace (equation.indexOf ("+") - number1.length (), equation.indexOf ("+") + number2.length () + 1,
+			String.valueOf (num1 + num2));
 	    } //if
 	    if (operation == '-')
 	    {
@@ -119,8 +119,8 @@ public class Calculator5
 		    number2 = "-" + number2;
 		    num2 = -num2;
 		} //if
-		equation.replace (equation.indexOf ("-", 1) - number1.length (),
-			equation.indexOf ("-", 1) + number2.length () + 1, String.valueOf (num1 - num2));
+		equation.replace (equation.indexOf ("-", 1) - number1.length (), equation.indexOf ("-", 1) + number2.length () + 1,
+			String.valueOf (num1 - num2));
 	    } //if
 	} //while
 	return equation;
@@ -130,15 +130,15 @@ public class Calculator5
     public static void main (String[] args)
     {
 	double result;
-	int parenPos1, parenPos2;
+	int openParen, closeParen;
 	StringBuffer equation, parenEq;
 	Stdout.print ("Enter an equation:  ");
 	String input = Stdin.readLine ();
 	equation = new StringBuffer (input);
 	for (int pos = 0 ; pos < equation.length () ; pos++)
 	{
-	    if ((equation.charAt (pos) < 40) || (equation.charAt (pos) > 57)
-		    && (equation.charAt (pos) != 94) || (equation.charAt (pos) == 44))
+	    if ((equation.charAt (pos) < 40) || (equation.charAt (pos) > 57) && (equation.charAt (pos) != 94) ||
+		    (equation.charAt (pos) == 44))
 	    {
 		equation.deleteCharAt (pos);
 		pos--;
@@ -146,25 +146,36 @@ public class Calculator5
 	} //for
 	while (equation.indexOf ("(") != -1)
 	{
-	    parenPos1 = equation.indexOf ("(");
-	    parenPos2 = equation.indexOf (")");
-	    if (parenPos2 == -1)
+	    openParen = equation.indexOf ("(");
+	    closeParen = equation.indexOf (")");
+	    if (closeParen == -1)
 	    {
-		parenPos2 = equation.length ();
+		closeParen = equation.length ();
 	    } //if
-	    parenEq = new StringBuffer (equation.substring (parenPos1 + 1, parenPos2));
+	    parenEq = new StringBuffer (equation.substring (openParen + 1, closeParen));
 	    while (parenEq.indexOf ("(") != -1)
 	    {
-		parenPos1 = equation.indexOf ("(", parenPos1 + 1);
-		parenPos2 = equation.indexOf (")", parenPos2 - 1);
-		if (parenPos2 == -1)
+		openParen = equation.indexOf ("(", openParen + 1);
+		closeParen = equation.indexOf (")", closeParen - 1);
+		if (closeParen == -1)
 		{
-		    parenPos2 = equation.length ();
+		    closeParen = equation.length ();
 		} //if
-		parenEq = new StringBuffer (equation.substring (parenPos1 + 1, parenPos2));
+		parenEq = new StringBuffer (equation.substring (openParen + 1, closeParen));
 	    } //while
+	    if (openParen > 0 && equation.charAt (openParen - 1) > 47 && equation.charAt (openParen - 1) < 58)
+	    {
+		equation.insert (openParen, "*");
+		openParen++;
+		closeParen++;
+	    } //if
+	    if (closeParen < equation.length () - 1 && equation.charAt (closeParen + 1) > 47 &&
+		    equation.charAt (openParen + 1) < 58)
+	    {
+		equation.insert (closeParen + 1, "*");
+	    } //if
 	    parenEq = doOps (parenEq);
-	    equation.replace (parenPos1, parenPos2 + 1, parenEq.toString ());
+	    equation.replace (openParen, closeParen + 1, parenEq.toString ());
 	} //while
 	equation = doOps (equation);
 	result = Math.round (Double.parseDouble (equation.toString ()) * 10000000000.0) / 10000000000.0;
@@ -177,6 +188,6 @@ public class Calculator5
 	    Stdout.println (result);
 	} //else
     } // main method
-} // Calculator5 class
+} // Calculator6 class
 
 
