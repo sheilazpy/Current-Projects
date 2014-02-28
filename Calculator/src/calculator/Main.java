@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-
+package calculator;
 
 import java.util.Scanner;
 import java.util.StringTokenizer;
@@ -13,106 +13,112 @@ import java.util.StringTokenizer;
  */
 public class Main {
 
-    private static StringBuffer doOps(StringBuffer equation) {
-        String number1, number2;
-        double num1, num2;
+    //Doesn't work with scientific notation.
+    private static String doMath(double num1, double num2, char op) {
+        switch (op) {
+            case '^':
+                return String.valueOf(Math.pow(num1, num2));
+            case '*':
+                return String.valueOf(num1 * num2);
+            case '/':
+                return String.valueOf(num1 / num2);
+            case '+':
+                return String.valueOf(num1 + num2);
+            default:
+                return ("Error");
+        }//switch
+    }//doMath method
+
+    private static StringBuffer parseEq(StringBuffer equation, char op) {
+        int pos;
+        String numStr1, numStr2, opStr;
         char operation;
+        double num1, num2;
         StringTokenizer findNums, findOps;
-        //System.out.println(equation.toString());
-        while (equation.indexOf("^") != -1) {
-            findNums = new StringTokenizer(equation.toString(), "()^*/+-E");
-            number2 = findNums.nextToken();
-            num2 = Double.parseDouble(number2);
-            findOps = new StringTokenizer(equation.toString(), "1234567890.");
-            if (equation.indexOf("-") == 0) {
-                operation = findOps.nextToken().charAt(0);
-            } //if
-            do {
-                number1 = number2;
-                num1 = num2;
-                operation = findOps.nextToken().charAt(0);
-                number2 = findNums.nextToken();
-                num2 = Double.parseDouble(number2);
-            } while (operation != '^');
-            if (equation.charAt(equation.indexOf("^") + 1) == '-') {
-                number2 = "-" + number2;
-                num2 = -num2;
-            } //if
-            equation.replace(equation.indexOf("^") - number1.length(), equation.indexOf("^") + number2.length() + 1,
-                    String.valueOf(Math.pow(num1, num2)));
-        } //while
-        //System.out.println(equation.toString());
-        while ((equation.indexOf("*") != -1) || (equation.indexOf("/") != -1)) {
-            findNums = new StringTokenizer(equation.toString(), "()^*/+-E");
-            number2 = findNums.nextToken();
-            num2 = Double.parseDouble(number2);
-            findOps = new StringTokenizer(equation.toString(), "1234567890.");
-            if (equation.indexOf("-") == 0) {
-                operation = findOps.nextToken().charAt(0);
-            } //if
-            do {
-                number1 = number2;
-                num1 = num2;
-                operation = findOps.nextToken().charAt(0);
-                number2 = findNums.nextToken();
-                num2 = Double.parseDouble(number2);
-            } while (operation != '*' && operation != '/');
-            if (operation == '*') {
-                if (equation.charAt(equation.indexOf("*") + 1) == '-') {
-                    number2 = "-" + number2;
-                    num2 = -num2;
-                } //if
-                equation.replace(equation.indexOf("*") - number1.length(), equation.indexOf("*") + number2.length() + 1,
-                        String.valueOf(num1 * num2));
-            } //if
-            if (operation == '/') {
-                if (equation.charAt(equation.indexOf("/") + 1) == '-') {
-                    number2 = "-" + number2;
-                    num2 = -num2;
-                } //if
-                equation.replace(equation.indexOf("/") - number1.length(), equation.indexOf("/") + number2.length() + 1,
-                        String.valueOf(num1 / num2));
-            } //if
-        } //while
         while (equation.indexOf("--") == 0) {
             equation.deleteCharAt(0);
             equation.deleteCharAt(0);
         } //while
         while (equation.indexOf("--") != -1) {
-            equation.replace(equation.indexOf("--"), equation.indexOf("--") + 2, "+");
+            pos = equation.indexOf("--");
+            equation.replace(pos, pos + 2, "+");
+        }//while
+        pos = 1;
+        while (equation.indexOf("-", pos) != -1) {
+            pos = equation.indexOf("-", pos);
+            if (equation.charAt(pos - 1) > 47 && equation.charAt(pos - 1) < 58) {
+                equation.insert(pos, "+");
+            }//if
+            pos += 2;
+        }//while
+        while (equation.indexOf(String.valueOf(op)) != -1) {
+            findNums = new StringTokenizer(equation.toString(), "()^*/+");
+            numStr2 = findNums.nextToken();
+            num2 = Double.parseDouble(numStr2);
+            findOps = new StringTokenizer(equation.toString(), "1234567890.-E");
+            do {
+                numStr1 = numStr2;
+                num1 = num2;
+                opStr = findOps.nextToken();
+                operation = opStr.charAt(0);
+                numStr2 = findNums.nextToken();
+                num2 = Double.parseDouble(numStr2);
+            } while (operation != op);
+            pos = equation.indexOf(String.valueOf(operation));
+            equation.replace(pos - numStr1.length(), pos + opStr.length() +
+                    numStr2.length(), doMath(num1, num2, operation));
+        }//while
+        return equation;
+    }//parseEq method
+
+    private static StringBuffer parseEq(StringBuffer equation, char op1, char op2) {
+        int pos;
+        String numStr1, numStr2, opStr;
+        char operation;
+        double num1, num2;
+        StringTokenizer findNums, findOps;
+        while (equation.indexOf("--") == 0) {
+            equation.deleteCharAt(0);
+            equation.deleteCharAt(0);
         } //while
-        while ((equation.indexOf("+") != -1) || (equation.indexOf("-", 1) != -1)) {
-            findNums = new StringTokenizer(equation.toString(), "()^*/+-E");
-            number2 = findNums.nextToken();
-            num2 = Double.parseDouble(number2);
-            findOps = new StringTokenizer(equation.toString(), "1234567890.");
-            number1 = number2;
-            num1 = num2;
-            operation = findOps.nextToken().charAt(0);
-            if (equation.indexOf("-") == 0) {
-                operation = findOps.nextToken().charAt(0);
-                equation.deleteCharAt(0);
-                num1 = -num1;
-            } //if
-            number2 = findNums.nextToken();
-            num2 = Double.parseDouble(number2);
-            if (operation == '+') {
-                if (equation.charAt(equation.indexOf("+") + 1) == '-') {
-                    number2 = "-" + number2;
-                    num2 = -num2;
-                } //if
-                equation.replace(equation.indexOf("+") - number1.length(), equation.indexOf("+") + number2.length() + 1,
-                        String.valueOf(num1 + num2));
-            } //if
-            if (operation == '-') {
-                if (equation.charAt(equation.indexOf("-") + 1) == '-') {
-                    number2 = "-" + number2;
-                    num2 = -num2;
-                } //if
-                equation.replace(equation.indexOf("-", 1) - number1.length(), equation.indexOf("-", 1) + number2.length() + 1,
-                        String.valueOf(num1 - num2));
-            } //if
-        } //while
+        while (equation.indexOf("--") != -1) {
+            pos = equation.indexOf("--");
+            equation.replace(pos, pos + 2, "+");
+        }//while
+        pos = 1;
+        while (equation.indexOf("-", pos) != -1) {
+            pos = equation.indexOf("-", pos);
+            if (equation.charAt(pos - 1) >= 47 && equation.charAt(pos - 1) < 58) {
+                equation.insert(pos, "+");
+            }//if
+            pos += 2;
+        }//while
+        while (equation.indexOf(String.valueOf(op1)) != -1 ||
+                equation.indexOf(String.valueOf(op2)) != -1) {
+            findNums = new StringTokenizer(equation.toString(), "()^*/+");
+            numStr2 = findNums.nextToken();
+            num2 = Double.parseDouble(numStr2);
+            findOps = new StringTokenizer(equation.toString(), "1234567890.-E");
+            do {
+                numStr1 = numStr2;
+                num1 = num2;
+                opStr = findOps.nextToken();
+                operation = opStr.charAt(0);
+                numStr2 = findNums.nextToken();
+                num2 = Double.parseDouble(numStr2);
+            } while (operation != op1 && operation != op2);
+            pos = equation.indexOf(String.valueOf(operation));
+            equation.replace(pos - numStr1.length(), pos + opStr.length() +
+                    numStr2.length(), doMath(num1, num2, operation));
+        }//while
+        return equation;
+    }//parseEq method
+
+    private static StringBuffer doOps(StringBuffer equation) {
+
+        equation = parseEq(equation, '^');
+        equation = parseEq(equation, '*', '/');
+        equation = parseEq(equation, '+');
         return equation;
     } //doOps method
 
@@ -125,8 +131,8 @@ public class Main {
         String input = scan.nextLine();
         equation = new StringBuffer(input);
         for (int pos = 0; pos < equation.length(); pos++) {
-            if ((equation.charAt(pos) < 40) || (equation.charAt(pos) > 57) && (equation.charAt(pos) != 94) ||
-                    (equation.charAt(pos) == 44)) {
+            if (equation.charAt(pos) < 40 || equation.charAt(pos) > 57 &&
+                    equation.charAt(pos) != 94 || equation.charAt(pos) == 44) {
                 equation.deleteCharAt(pos);
                 pos--;
             } //if
@@ -146,13 +152,13 @@ public class Main {
                 } //if
                 parenEq = new StringBuffer(equation.substring(openParen + 1, closeParen));
             } //while
-            if (openParen > 0 && equation.charAt(openParen - 1) > 47 && equation.charAt(openParen - 1) < 58) {
+            if (openParen > 0 && equation.charAt(openParen - 1) > 47 &&
+                    equation.charAt(openParen - 1) < 58) {
                 equation.insert(openParen, "*");
                 openParen++;
                 closeParen++;
             } //if
-            if (closeParen < equation.length() - 1 && equation.charAt(closeParen + 1) > 47 &&
-                    equation.charAt(closeParen + 1) < 58) {
+            if (closeParen < equation.length() - 1 && equation.charAt(closeParen + 1) > 47 && equation.charAt(closeParen + 1) < 58) {
                 equation.insert(closeParen + 1, "*");
             } //if
             parenEq = doOps(parenEq);
