@@ -1,59 +1,112 @@
-package calculator;
-// The "Calculator" class.
+// The "Calculator1" class.
 import hsa.*;
 import java.util.*;
-public class Calculator
+public class Calculator1
 {
     public static void main (String[] args)
     {
-	double number1, number2, result;
+	String number1, number2;
+	double num1, num2;
 	char operation;
 	StringTokenizer findNums, findOps;
 	Stdout.print ("Enter an equation:  ");
-	String equation = Stdin.readLine ();
-	StringBuffer line = new StringBuffer (equation);
-	for (int pos = 0 ; pos < line.length () ; pos++)
+	String input = Stdin.readLine ();
+	StringBuffer equation = new StringBuffer (input);
+	for (int pos = 0 ; pos < equation.length () ; pos++)
 	{
-	    if ((line.charAt (pos) < 42) || (line.charAt (pos) > 57)
-		    && (line.charAt (pos) != 94) || (line.charAt (pos) == 44))
+	    if ((equation.charAt (pos) < 42) || (equation.charAt (pos) > 57)
+		    && (equation.charAt (pos) != 94) || (equation.charAt (pos) == 44))
 	    {
-		line.deleteCharAt (pos);
+		equation.deleteCharAt (pos);
 		pos--;
 	    } //if
 	} //for
-	findNums = new StringTokenizer (line.toString (), "()^*/+-");
-	number1 = Double.parseDouble (findNums.nextToken ());
-	result = number1;
-	findOps = new StringTokenizer (line.toString (), "1234567890.");
-	while (findNums.hasMoreTokens ())
+	while (equation.indexOf ("^") != -1)
 	{
-	    operation = findOps.nextToken ().charAt (0);
-	    number2 = Double.parseDouble (findNums.nextToken ());
-	    switch (operation)
+	    findNums = new StringTokenizer (equation.toString (), "()^*/+-");
+	    number2 = findNums.nextToken ();
+	    num2 = Double.parseDouble (number2);
+	    findOps = new StringTokenizer (equation.toString (), "1234567890.");
+	    do
 	    {
-		case '^':
-		    result = Math.pow (number1, number2);
-		    break;
-		case '*':
-		    result = number1 * number2;
-		    break;
-		case '/':
-		    result = (double) (number1) / (double) (number2);
-		    break;
-		case '+':
-		    result = number1 + number2;
-		    break;
-		case '-':
-		    result = number1 - number2;
-		    break;
-		default:
-		    Stdout.println ("Invalid operation");
-		    break;
-	    } //switch
-	    number1 = result;
+		number1 = number2;
+		num1 = num2;
+		operation = findOps.nextToken ().charAt (0);
+		if (equation.indexOf ("-") == 0)
+		{
+		    operation = findOps.nextToken ().charAt (0);
+		}
+		number2 = findNums.nextToken ();
+		num2 = Double.parseDouble (number2);
+	    }
+	    while (operation != '^');
+	    equation.replace (equation.indexOf ("^") - number1.length (),
+		    equation.indexOf ("^") + number2.length () + 1, String.valueOf (Math.pow (num1, num2)));
 	} //while
-	Stdout.println (result);
+	while ((equation.indexOf ("*") != -1) || (equation.indexOf ("/") != -1))
+	{
+	    findNums = new StringTokenizer (equation.toString (), "()^*/+-");
+	    number2 = findNums.nextToken ();
+	    num2 = Double.parseDouble (number2);
+	    findOps = new StringTokenizer (equation.toString (), "1234567890.");
+	    do
+	    {
+		number1 = number2;
+		num1 = num2;
+		operation = findOps.nextToken ().charAt (0);
+		if (equation.indexOf ("-") == 0)
+		{
+		    operation = findOps.nextToken ().charAt (0);
+		}
+		number2 = findNums.nextToken ();
+		num2 = Double.parseDouble (number2);
+	    }
+	    while (operation != '*' && operation != '/');
+	    if (operation == '*')
+	    {
+		equation.replace (equation.indexOf ("*") - number1.length (),
+			equation.indexOf ("*") + number2.length () + 1, String.valueOf (num1 * num2));
+	    }
+	    if (operation == '/')
+	    {
+		equation.replace (equation.indexOf ("/") - number1.length (),
+			equation.indexOf ("/") + number2.length () + 1, String.valueOf (num1 / num2));
+	    }
+	} //while
+	while ((equation.indexOf ("+") != -1) || (equation.indexOf ("-", 1) != -1))
+	{
+	    findNums = new StringTokenizer (equation.toString (), "()^*/+-");
+	    number2 = findNums.nextToken ();
+	    num2 = Double.parseDouble (number2);
+	    findOps = new StringTokenizer (equation.toString (), "1234567890.");
+	    do
+	    {
+		number1 = number2;
+		num1 = num2;
+		operation = findOps.nextToken ().charAt (0);
+		if (equation.indexOf ("-") == 0)
+		{
+		    operation = findOps.nextToken ().charAt (0);
+		    equation.deleteCharAt(0);
+		    num1=-num1;
+		}
+		number2 = findNums.nextToken ();
+		num2 = Double.parseDouble (number2);
+	    }
+	    while (operation != '+' && operation != '-');
+	    if (operation == '+')
+	    {
+		equation.replace (equation.indexOf ("+") - number1.length (),
+			equation.indexOf ("+") + number2.length () + 1, String.valueOf (num1 + num2));
+	    }
+	    if (operation == '-')
+	    {
+		equation.replace (equation.indexOf ("-", 1) - number1.length (),
+			equation.indexOf ("-", 1) + number2.length () + 1, String.valueOf (num1 - num2));
+	    }
+	} //while
+	Stdout.println (equation.toString ());
     } // main method
-} // Calculator class
+} // Calculator1 class
 
 
