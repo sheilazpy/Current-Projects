@@ -1,4 +1,5 @@
-/**	File Name: OpTree.java
+/**	
+ * File Name: OpTree.java
  *	
  *	Project: Calculator
  *	
@@ -10,6 +11,8 @@
  *	Date: 3/26/14
  */
 package calculator;
+
+import java.math.BigDecimal;
 
 public class OpTree {
 
@@ -34,7 +37,7 @@ public class OpTree {
 	 * @return root.value
 	 * @throws NullPointerException
 	 */
-	public double getValue() throws NullPointerException {
+	public BigDecimal getValue() throws NullPointerException {
 		return root.getValue();
 	} // public double getValue()
 
@@ -119,9 +122,16 @@ public class OpTree {
 				break;
 			case '+':
 			case '-':
-				currentNode = getNextNode();
-				currentNode.setLeftChild(localRoot);
-				localRoot = currentNode;
+				if (currentNode != null && currentNode.getRightChild() == null) {
+					// Signed number
+					temp = getNextNode();
+					currentNode.setRightChild(temp);
+					currentNode = temp;
+				} else {
+					currentNode = getNextNode();
+					currentNode.setLeftChild(localRoot);
+					localRoot = currentNode;
+				} // if
 				break;
 			case '^':
 				temp = getNextNode();
@@ -153,6 +163,12 @@ public class OpTree {
 		return localRoot;
 	} // private OpNode buildTree()
 
+	/**
+	 * Parses the operand or operation at the current position in the expression
+	 * String. Updates the position counter.
+	 * 
+	 * @return nextNode
+	 */
 	private OpNode getNextNode() {
 		if (position >= expression.length()) {
 			return new OpNode(')');
@@ -173,12 +189,11 @@ public class OpTree {
 		case '8':
 		case '9':
 		case '.':
-			double value = Double.NaN;
+			BigDecimal value = null;
 			int end;
 			for (end = expression.length(); end > position; end--) {
 				try { // Find the number
-					value = Double.parseDouble(expression.substring(position,
-							end));
+					value = new BigDecimal(expression.substring(position, end));
 					break;
 				} catch (NumberFormatException e) {
 				} // try

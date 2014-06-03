@@ -12,17 +12,21 @@
 
 package calculator;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 class OpNode {
 
 	private OpNode leftChild, rightChild;
 	private char operation;
-	private double value;
+	private BigDecimal value;
 
 	/**
 	 * Creates a node with the specified value
+	 * 
 	 * @param val
 	 */
-	OpNode(double val) {
+	OpNode(BigDecimal val) {
 		leftChild = null;
 		rightChild = null;
 		operation = '#'; // Indicates node holds a value
@@ -31,13 +35,14 @@ class OpNode {
 
 	/**
 	 * Creates a node with the specified operation
+	 * 
 	 * @param op
 	 */
 	OpNode(char op) {
 		leftChild = null;
 		rightChild = null;
 		operation = op;
-		value = Double.NaN; // Indicates node holds an operation
+		value = null; // Indicates node holds an operation
 	}
 
 	/**
@@ -77,25 +82,49 @@ class OpNode {
 
 	/**
 	 * Calculates the value associated with the node
+	 * 
 	 * @return value
 	 * @throws NullPointerException
 	 */
-	double getValue() throws NullPointerException {
+	BigDecimal getValue() throws NullPointerException {
 		switch (operation) {
 		case '*':
-			value = leftChild.getValue() * rightChild.getValue();
+			value = leftChild.getValue().multiply(rightChild.getValue());
 			break;
 		case '/':
-			value = leftChild.getValue() / rightChild.getValue();
+			try {
+				value = leftChild.getValue().divide(rightChild.getValue());
+			} catch (ArithmeticException e) { // Unbounded precision
+				value = leftChild.getValue().divide(rightChild.getValue(), 10,
+						RoundingMode.HALF_UP);
+			} // try
 			break;
 		case '+':
-			value = leftChild.getValue() + rightChild.getValue();
+			if (leftChild != null) {
+				value = leftChild.getValue().add(rightChild.getValue());
+			} else { // Signed number
+				value = rightChild.getValue();
+			} // if (leftChild != null)
 			break;
 		case '-':
-			value = leftChild.getValue() - rightChild.getValue();
+			if (leftChild != null) {
+				value = leftChild.getValue().subtract(rightChild.getValue());
+			} else { // Signed number
+				value = rightChild.getValue().negate();
+			} // if (leftChild != null)
 			break;
 		case '^':
-			value = Math.pow(leftChild.getValue(), rightChild.getValue());
+			try {
+				value = leftChild.getValue().pow(
+						rightChild.getValue().intValueExact());
+			} catch (ArithmeticException e) { // Non-integer exponent
+				try {
+					value = new BigDecimal(
+							Math.pow(leftChild.getValue().doubleValue(),
+									rightChild.getValue().doubleValue()));
+				} catch (NumberFormatException err) { // Result out of range
+				} // try
+			} // try
 			break;
 		case ')':
 			value = leftChild.getValue();

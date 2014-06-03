@@ -3,7 +3,7 @@
  *	Project: Calculator
  *	
  *	Description: This program implements a text-based calculator using a tree.
- *				 Can handle ()^/*-+  and positive real operands, including scientific notation.
+ *				 Can handle ()^/*-+  and real operands, including scientific notation.
  *
  *	Author: Erik Anderson
  *
@@ -18,6 +18,7 @@ public class Main {
 
 	/**
 	 * Executes the program
+	 * 
 	 * @param args
 	 */
 	public static void main(String[] args) {
@@ -32,7 +33,8 @@ public class Main {
 			} // if (input.charAt(0) == '#')
 			try {
 				calculator = new OpTree(input);
-				System.out.println(calculator.getValue());
+				System.out.println(calculator.getValue().stripTrailingZeros()
+						.toPlainString());
 			} catch (NullPointerException e) {
 				System.out.println("Invalid expression. Please try again.");
 			} // try
