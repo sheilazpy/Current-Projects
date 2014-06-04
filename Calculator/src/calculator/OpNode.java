@@ -20,6 +20,7 @@ class OpNode {
 	private OpNode leftChild, rightChild;
 	private char operation;
 	private BigDecimal value;
+	private int order;
 
 	/**
 	 * Creates a node with the specified value
@@ -31,7 +32,8 @@ class OpNode {
 		rightChild = null;
 		operation = '#'; // Indicates node holds a value
 		value = val;
-	} // OpNode(double val)
+		setOrder(operation);
+	} // OpNode(BigDecimal val)
 
 	/**
 	 * Creates a node with the specified operation
@@ -43,7 +45,34 @@ class OpNode {
 		rightChild = null;
 		operation = op;
 		value = null; // Indicates node holds an operation
-	}
+		setOrder(operation);
+	} // OpNode(char op)
+
+	/**
+	 * Sets the order of operations associated with the specified operation
+	 * 
+	 * @param op
+	 */
+	void setOrder(char op) {
+		switch (op) {
+		case '^':
+			order = 1;
+			break;
+		case '*':
+		case '/':
+			order = 2;
+			break;
+		case '+':
+		case '-':
+			order = 3;
+			break;
+		case '#':
+		case ')': // Parenthetical operand
+		default:
+			order = 0;
+			break;
+		} // switch (op)
+	} // void setOrder(char op)
 
 	/**
 	 * @param left
@@ -81,7 +110,7 @@ class OpNode {
 	} // char getOperation ()
 
 	/**
-	 * Calculates the value associated with the node
+	 * Recursively calculates the value associated with the opNode
 	 * 
 	 * @return value
 	 * @throws NullPointerException
@@ -119,9 +148,9 @@ class OpNode {
 						rightChild.getValue().intValueExact());
 			} catch (ArithmeticException e) { // Non-integer exponent
 				try {
-					value = new BigDecimal(
-							Math.pow(leftChild.getValue().doubleValue(),
-									rightChild.getValue().doubleValue()));
+					value = BigDecimal.valueOf(Math
+							.pow(leftChild.getValue().doubleValue(), rightChild
+									.getValue().doubleValue()));
 				} catch (NumberFormatException err) { // Result out of range
 				} // try
 			} // try
@@ -131,7 +160,19 @@ class OpNode {
 			break;
 		} // switch (operation)
 		operation = '#'; // Node now holds a value
+		setOrder('#');
 		return value;
 	} // double getValue()
+
+	/**
+	 * Determines the order of operations precedence of this opNode in relation
+	 * to opNode node. Assumes this comes before node in the expression String.
+	 * 
+	 * @param node
+	 * @return true if this precedes node, false if node precedes this
+	 */
+	boolean precedes(OpNode node) {
+		return order <= node.order;
+	} // int compareTo (OpNode node)
 
 } // class OpNode

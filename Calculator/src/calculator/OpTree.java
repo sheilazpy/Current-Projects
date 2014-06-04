@@ -14,11 +14,11 @@ package calculator;
 
 import java.math.BigDecimal;
 
-public class OpTree {
+class OpTree {
 
 	private OpNode root;
-	String expression;
-	int position;
+	private String expression;
+	private int position;
 
 	/**
 	 * Creates a tree with the specified expression.
@@ -26,20 +26,20 @@ public class OpTree {
 	 * @param expr
 	 * @throws NullPointerException
 	 */
-	public OpTree(String expr) throws NullPointerException {
+	OpTree(String expr) throws NullPointerException {
 		expression = expr.replaceAll("\\s", ""); // Remove whitespace
 		position = 0;
 		checkParens();
 		root = buildTree();
-	} // public OpTree(String expr)
+	} // OpTree(String expr)
 
 	/**
 	 * @return root.value
 	 * @throws NullPointerException
 	 */
-	public BigDecimal getValue() throws NullPointerException {
+	BigDecimal getValue() throws NullPointerException {
 		return root.getValue();
-	} // public double getValue()
+	} // BigDecimal getValue()
 
 	/**
 	 * Checks for mismatched parentheses. Adds leading or trailing parentheses
@@ -98,6 +98,7 @@ public class OpTree {
 			switch (currentChar) {
 			case ')':
 				position++;
+				localRoot.setOrder(')'); // Parenthetical operand
 				return localRoot;
 			case '(':
 			case '0':
@@ -134,29 +135,22 @@ public class OpTree {
 				} // if
 				break;
 			case '^':
-				temp = getNextNode();
-				temp.setLeftChild(currentNode.getRightChild());
-				currentNode.setRightChild(temp);
-				currentNode = temp;
-				break;
 			case '*':
 			case '/':
-				if (localRoot.getOperation() != '+'
-						&& localRoot.getOperation() != '-') {
-					currentNode = getNextNode();
+				temp = getNextNode();
+				if (localRoot.precedes(temp)) {
+					currentNode = temp;
 					currentNode.setLeftChild(localRoot);
 					localRoot = currentNode;
 				} else {
 					currentNode = localRoot;
-					while (currentNode.getRightChild().getOperation() == '+'
-							|| currentNode.getRightChild().getOperation() == '-') {
+					while (!currentNode.getRightChild().precedes(temp)) {
 						currentNode = currentNode.getRightChild();
-					} // while
-					temp = getNextNode();
+					} // while (!currentNode.getRightChild().precedes(temp))
 					temp.setLeftChild(currentNode.getRightChild());
 					currentNode.setRightChild(temp);
 					currentNode = temp;
-				} // if
+				} // if (localRoot.precedes(temp))
 				break;
 			} // switch (currentChar)
 		} // while (position < expression.length())
@@ -172,7 +166,7 @@ public class OpTree {
 	private OpNode getNextNode() {
 		if (position >= expression.length()) {
 			return new OpNode(')');
-		}
+		} // if (position >= expression.length())
 		char current = expression.charAt(position);
 		switch (current) {
 		case '(':
@@ -211,6 +205,6 @@ public class OpTree {
 		default:
 			return null;
 		} // switch (current)
-	}
+	} // private OpNode getNextNode()
 
-} // public class OpTree
+} // class OpTree
