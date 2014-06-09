@@ -31,13 +31,13 @@ public class Main {
 			if (input.charAt(0) == '#') {
 				break;
 			} // if (input.charAt(0) == '#')
-			//try {
+			try {
 				calculator = new OpTree(input);
 				System.out.println(calculator.getValue().stripTrailingZeros()
 						.toPlainString());
-			//} catch (NullPointerException e) {
-				//System.out.println("Invalid expression. Please try again.");
-			//} // try
+			} catch (Exception e) {
+				System.out.println("Invalid expression: " + e.getMessage());
+			} // try
 		} // while (true)
 		scan.close();
 		System.out.println("Goodbye");

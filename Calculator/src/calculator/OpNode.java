@@ -32,7 +32,7 @@ class OpNode {
 		rightChild = null;
 		operation = '#'; // Indicates node holds a value
 		value = val;
-		setOrder(operation);
+		setOrder();
 	} // OpNode(BigDecimal val)
 
 	/**
@@ -45,16 +45,16 @@ class OpNode {
 		rightChild = null;
 		operation = op;
 		value = null; // Indicates node holds an operation
-		setOrder(operation);
+		setOrder();
 	} // OpNode(char op)
 
 	/**
-	 * Sets the order of operations associated with the specified operation
+	 * Determines the order of operations associated with the OpNode
 	 * 
 	 * @param op
 	 */
-	void setOrder(char op) {
-		switch (op) {
+	private void setOrder() {
+		switch (operation) {
 		case '^':
 			order = 1;
 			break;
@@ -67,12 +67,11 @@ class OpNode {
 			order = 3;
 			break;
 		case '#':
-		case ')': // Parenthetical operand
 		default:
 			order = 0;
 			break;
-		} // switch (op)
-	} // void setOrder(char op)
+		} // switch (operation)
+	} // private void setOrder()
 
 	/**
 	 * @param left
@@ -103,14 +102,7 @@ class OpNode {
 	} // OpNode getRightChild ()
 
 	/**
-	 * @return operation
-	 */
-	char getOperation() {
-		return operation;
-	} // char getOperation ()
-
-	/**
-	 * Recursively calculates the value associated with the opNode
+	 * Recursively calculates the value associated with the OpNode
 	 * 
 	 * @return value
 	 * @throws NullPointerException
@@ -160,19 +152,33 @@ class OpNode {
 			break;
 		} // switch (operation)
 		operation = '#'; // Node now holds a value
-		setOrder('#');
+		setOrder();
 		return value;
 	} // double getValue()
 
 	/**
-	 * Determines the order of operations precedence of this opNode in relation
-	 * to opNode node. Assumes this comes before node in the expression String.
+	 * Determines the order of operations precedence of this OpNode in relation
+	 * to OpNode node. Assumes this comes before node in the expression String.
 	 * 
 	 * @param node
-	 * @return true if this precedes node, false if node precedes this
+	 * @return true if this precedes node, false otherwise
 	 */
 	boolean precedes(OpNode node) {
 		return order <= node.order;
-	} // int compareTo (OpNode node)
+	} // boolean precedes(OpNode node)
+
+	/**
+	 * @return true if this holds an operation, false otherwise
+	 */
+	boolean isOperation() {
+		return operation != '#';
+	} // boolean isOperation()
+
+	/**
+	 * @return true if this holds a value, false otherwise
+	 */
+	boolean isValue() {
+		return operation == '#';
+	} // boolean isValue()
 
 } // class OpNode

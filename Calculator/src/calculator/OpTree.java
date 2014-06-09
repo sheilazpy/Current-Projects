@@ -89,17 +89,33 @@ class OpTree {
 	 * 
 	 * @return localRoot
 	 * @throws NullPointerException
+	 * @throws IllegalArgumentException
 	 */
-	private OpNode buildTree() throws NullPointerException {
+	private OpNode buildTree() throws NullPointerException,
+			IllegalArgumentException {
 		OpNode localRoot = null, currentNode = null, temp;
+		boolean impliedMult;
 		char currentChar;
 		while (position < expression.length()) {
+			impliedMult = false;
 			currentChar = expression.charAt(position);
+			temp = getNextNode();
 			switch (currentChar) {
 			case ')':
-				position++;
-				localRoot.setOrder(')'); // Parenthetical operand
+				localRoot.getValue(); // Parenthetical operand
 				return localRoot;
+			case '+':
+			case '-':
+				if (currentNode != null && currentNode.isOperation()) {
+					// Signed number
+					currentNode.setRightChild(temp);
+					currentNode = temp;
+				} else {
+					currentNode = temp;
+					currentNode.setLeftChild(localRoot);
+					localRoot = currentNode;
+				} // if (currentNode != null && currentNode.isOperation())
+				break;
 			case '(':
 			case '0':
 			case '1':
@@ -112,32 +128,23 @@ class OpTree {
 			case '8':
 			case '9':
 			case '.':
-				temp = getNextNode();
 				if (localRoot == null) { // First character
-					localRoot = getNextNode();
-					localRoot.setLeftChild(temp);
+					localRoot = temp;
 					currentNode = localRoot;
-				} else {
-					currentNode.setRightChild(temp);
-				} // if (localRoot == null)
-				break;
-			case '+':
-			case '-':
-				if (currentNode != null && currentNode.getRightChild() == null) {
-					// Signed number
-					temp = getNextNode();
+					break;
+				} else if (currentNode.isOperation()) {
 					currentNode.setRightChild(temp);
 					currentNode = temp;
-				} else {
-					currentNode = getNextNode();
-					currentNode.setLeftChild(localRoot);
-					localRoot = currentNode;
-				} // if
-				break;
+					break;
+				} else { // Implied multiplication
+					currentNode = new OpNode('*');
+					currentNode.setRightChild(temp);
+					temp = currentNode;
+					impliedMult = true;
+				} // if (localRoot == null)
 			case '^':
 			case '*':
 			case '/':
-				temp = getNextNode();
 				if (localRoot.precedes(temp)) {
 					currentNode = temp;
 					currentNode.setLeftChild(localRoot);
@@ -151,6 +158,9 @@ class OpTree {
 					currentNode.setRightChild(temp);
 					currentNode = temp;
 				} // if (localRoot.precedes(temp))
+				if (impliedMult) {
+					currentNode = currentNode.getRightChild();
+				} // if (impliedMult)
 				break;
 			} // switch (currentChar)
 		} // while (position < expression.length())
@@ -162,11 +172,9 @@ class OpTree {
 	 * String. Updates the position counter.
 	 * 
 	 * @return nextNode
+	 * @throws IllegalArgumentException
 	 */
-	private OpNode getNextNode() {
-		if (position >= expression.length()) {
-			return new OpNode(')');
-		} // if (position >= expression.length())
+	private OpNode getNextNode() throws IllegalArgumentException {
 		char current = expression.charAt(position);
 		switch (current) {
 		case '(':
@@ -200,10 +208,13 @@ class OpTree {
 		case '*':
 		case '/':
 			position++;
-		case ')':
 			return new OpNode(current);
-		default:
+		case ')':
+			position++;
 			return null;
+		default:
+			throw new IllegalArgumentException("Invalid character " + current
+					+ " at position " + position);
 		} // switch (current)
 	} // private OpNode getNextNode()
 
