@@ -27,7 +27,8 @@ class OpTree {
 	 * @throws NullPointerException
 	 */
 	OpTree(String expr) throws NullPointerException {
-		expression = expr.replaceAll("\\s", ""); // Remove whitespace
+		// remove whitespace
+		expression = expr.replaceAll("\\s", "").toLowerCase();
 		position = 0;
 		checkParens();
 		root = buildTree();
@@ -128,7 +129,14 @@ class OpTree {
 			case '8':
 			case '9':
 			case '.':
-				if (localRoot == null) { // First character
+			case 'e':
+			case 'p':
+			case 's':
+			case 'c':
+			case 't':
+			case 'a':
+			case 'l':
+				if (localRoot == null) { // First OpNode
 					localRoot = temp;
 					currentNode = localRoot;
 					break;
@@ -145,6 +153,7 @@ class OpTree {
 			case '^':
 			case '*':
 			case '/':
+			case '%':
 				if (localRoot.precedes(temp)) {
 					currentNode = temp;
 					currentNode.setLeftChild(localRoot);
@@ -207,15 +216,74 @@ class OpTree {
 		case '^':
 		case '*':
 		case '/':
+		case '%':
 			position++;
 			return new OpNode(current);
 		case ')':
 			position++;
 			return null;
-		default:
-			throw new IllegalArgumentException("Invalid character " + current
-					+ " at position " + position);
+		case 'e':
+			position++;
+			return new OpNode(BigDecimal.valueOf(Math.E));
+		case 'p':
+			if (expression.indexOf("pi", position) == position) {
+				position += 2;
+				return new OpNode(BigDecimal.valueOf(Math.PI));
+			} // if (expression.indexOf("pi", position) == position)
+			break;
+		case 's':
+			if (expression.indexOf("sqrt", position) == position) {
+				position += 4;
+				return new OpNode('r');
+			} // if (expression.indexOf("sqrt", position) == position)
+			if (expression.indexOf("sin", position) == position) {
+				position += 3;
+				return new OpNode(current);
+			} // if (expression.indexOf("sin", position) == position)
+			break;
+		case 'c':
+			if (expression.indexOf("cos", position) == position) {
+				position += 3;
+				return new OpNode(current);
+			} // if (expression.indexOf("cos", position) == position)
+			break;
+		case 't':
+			if (expression.indexOf("tan", position) == position) {
+				position += 3;
+				return new OpNode(current);
+			} // if (expression.indexOf("tan", position) == position)
+			break;
+		case 'a':
+			if (expression.indexOf("asin", position) == position) {
+				position += 4;
+				return new OpNode('S');
+			} // if (expression.indexOf("asin", position) == position)
+			if (expression.indexOf("acos", position) == position) {
+				position += 4;
+				return new OpNode('C');
+			} // if (expression.indexOf("acos", position) == position)
+			if (expression.indexOf("atan", position) == position) {
+				position += 4;
+				return new OpNode('T');
+			} // if (expression.indexOf("atan", position) == position)
+			if (expression.indexOf("abs", position) == position) {
+				position += 3;
+				return new OpNode('|');
+			} // if (expression.indexOf("abs", position) == position)
+			break;
+		case 'l':
+			if (expression.indexOf("log", position) == position) {
+				position += 3;
+				return new OpNode(current);
+			} // if (expression.indexOf("log", position) == position)
+			if (expression.indexOf("ln", position) == position) {
+				position += 2;
+				return new OpNode('n');
+			} // if (expression.indexOf("ln", position) == position)
+			break;
 		} // switch (current)
+		throw new IllegalArgumentException("Invalid character " + current
+				+ " at position " + position);
 	} // private OpNode getNextNode()
 
 } // class OpTree

@@ -60,6 +60,7 @@ class OpNode {
 			break;
 		case '*':
 		case '/':
+		case '%':
 			order = 2;
 			break;
 		case '+':
@@ -67,6 +68,16 @@ class OpNode {
 			order = 3;
 			break;
 		case '#':
+		case 's':
+		case 'S':
+		case 'c':
+		case 'C':
+		case 't':
+		case 'T':
+		case '|':
+		case 'r':
+		case 'l':
+		case 'n':
 		default:
 			order = 0;
 			break;
@@ -139,16 +150,51 @@ class OpNode {
 				value = leftChild.getValue().pow(
 						rightChild.getValue().intValueExact());
 			} catch (ArithmeticException e) { // Non-integer exponent
-				try {
-					value = BigDecimal.valueOf(Math
-							.pow(leftChild.getValue().doubleValue(), rightChild
-									.getValue().doubleValue()));
-				} catch (NumberFormatException err) { // Result out of range
-				} // try
+				value = BigDecimal.valueOf(Math.pow(leftChild.getValue()
+						.doubleValue(), rightChild.getValue().doubleValue()));
 			} // try
 			break;
-		case ')':
-			value = leftChild.getValue();
+		case '%':
+			value = leftChild.getValue().remainder(rightChild.getValue());
+			break;
+		case 's':
+			value = BigDecimal.valueOf(Math.sin(rightChild.getValue()
+					.doubleValue()));
+			break;
+		case 'S':
+			value = BigDecimal.valueOf(Math.asin(rightChild.getValue()
+					.doubleValue()));
+			break;
+		case 'c':
+			value = BigDecimal.valueOf(Math.cos(rightChild.getValue()
+					.doubleValue()));
+			break;
+		case 'C':
+			value = BigDecimal.valueOf(Math.acos(rightChild.getValue()
+					.doubleValue()));
+			break;
+		case 't':
+			value = BigDecimal.valueOf(Math.tan(rightChild.getValue()
+					.doubleValue()));
+			break;
+		case 'T':
+			value = BigDecimal.valueOf(Math.atan(rightChild.getValue()
+					.doubleValue()));
+			break;
+		case '|':
+			value = rightChild.getValue().abs();
+			break;
+		case 'r':
+			value = BigDecimal.valueOf(Math.sqrt(rightChild.getValue()
+					.doubleValue()));
+			break;
+		case 'l':
+			value = BigDecimal.valueOf(Math.log10(rightChild.getValue()
+					.doubleValue()));
+			break;
+		case 'n':
+			value = BigDecimal.valueOf(Math.log(rightChild.getValue()
+					.doubleValue()));
 			break;
 		} // switch (operation)
 		operation = '#'; // Node now holds a value

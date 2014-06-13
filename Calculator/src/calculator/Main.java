@@ -12,6 +12,7 @@
 
 package calculator;
 
+import java.math.RoundingMode;
 import java.util.Scanner;
 
 public class Main {
@@ -33,8 +34,9 @@ public class Main {
 			} // if (input.charAt(0) == '#')
 			try {
 				calculator = new OpTree(input);
-				System.out.println(calculator.getValue().stripTrailingZeros()
-						.toPlainString());
+				System.out.println(calculator.getValue()
+						.setScale(10, RoundingMode.HALF_UP)
+						.stripTrailingZeros().toPlainString());
 			} catch (Exception e) {
 				System.out.println("Invalid expression: " + e.getMessage());
 			} // try
